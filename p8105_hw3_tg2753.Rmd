@@ -13,6 +13,72 @@ load the data
 ```{r}
 data("instacart")
 ```
+There are `r nrow(instacart)` rows and `r ncol(instacart)` columns. Key Variables include `r names(instacart)`. Key observations are :`r knitr::kable(head(instacart))` 
+
+--How many aisles are there, and which aisles are the most items ordered from?
+```{r}
+aisle = 
+  instacart %>% 
+  group_by(aisle) %>% 
+  summarise(n_obs = n()) %>%
+  arrange(desc(n_obs))
+```
+There are `r nrow(aisle)` aisles. The aisle that are ordered most from is aisle `fresh vegetables`.
+
+--Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+```{r}
+aisle %>%  
+  filter(n_obs >= 10000) %>% 
+  mutate(
+    aisle = factor(aisle),
+    aisle = fct_reorder(aisle, n_obs)
+  ) %>%
+  ggplot(aes(x = n_obs, y = aisle, fill = aisle)) +
+  geom_bar(stat = "identity") +
+  guides(fill = FALSE) +
+  labs(
+    title = "Number of orders from each aisle",
+    x = "Number of orders",
+    y = "Aisle",
+    captions = "Aisles with >= 10000 orders only"
+  )
+```
+--Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+```{r}
+instacart %>% 
+    filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>% 
+    group_by(aisle) %>% 
+    count(product_name) %>%
+    mutate(rank = min_rank(desc(n))) %>% 
+    filter(rank < 4) %>% 
+    arrange(aisle, rank) %>% 
+    knitr::kable()
+```
+--Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers 
+```{r warning=FALSE}
+instacart %>% 
+    filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
+    group_by(product_name, order_dow) %>% 
+    summarize(mean_hour = mean(order_hour_of_day)) %>%
+    mutate(order_dow = recode(order_dow,
+                            "0" = "Monday",
+                            "1" = "Tuesday",
+                            "2" = "Wednesday", 
+                            "3" = "Thursday",
+                            "4" = "Friday",
+                            "5" = "Saturday",
+                            "6" = "Sunday"
+                             )) %>% 
+    pivot_wider(
+        names_from = order_dow,
+        values_from = mean_hour
+    ) %>%
+ knitr::kable()
+```
+
+
+
+
 
 
 ## Problem 2
