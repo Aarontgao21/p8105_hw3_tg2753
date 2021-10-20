@@ -9,6 +9,10 @@ library(p8105.datasets)
 ```
 
 ## Problem 1
+load the data
+```{r}
+data("instacart")
+```
 
 
 ## Problem 2
